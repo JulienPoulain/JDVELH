@@ -20,6 +20,4 @@ int main() {
 			printf("Vous prenez la porte de droite.\n");
 			break;
 	}
-	
-	printf("%d", entry);
 }
