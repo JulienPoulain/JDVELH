@@ -7,13 +7,21 @@
 typedef struct Chapter Chapter;
 struct Chapter {
 	char description[128];
-	int goldGain;
-	int healthGain;
+	int gold_gain;
+	int health_gain;
 	int destinations[SIZE_ARRAY_DESTINATIONS];
 	int nbDestinations;
 };
 
-void deplacement(Chapter*, int, int);
+typedef struct Ressources Ressources;
+struct Ressources {
+	int health;
+	int health_max;
+	int gold;
+	int gold_min;
+};
+
+int deplacement(Ressources*, Chapter*, int*, int, int);
 
 int main() {
 	int entry = 0;
@@ -21,64 +29,81 @@ int main() {
 	
 	Chapter start = {
 		.description = "Départ",
-		.goldGain = 0,
-		.healthGain = 0,
+		.gold_gain = 0,
+		.health_gain = 0,
 		.destinations = {1, 2},
 		.nbDestinations = 2
 	};
 	
 	Chapter chapter1 = {
 		.description = "Chapitre 1",
-		.goldGain = 0,
-		.healthGain = 0,
+		.gold_gain = 10,
+		.health_gain = -50,
 		.destinations = {2, 3},
 		.nbDestinations = 2
 	};
 	
 	Chapter chapter2 = {
 		.description = "Chapitre 2",
-		.goldGain = 0,
-		.healthGain = 0,
+		.gold_gain = -5,
+		.health_gain = -20,
 		.destinations = {3},
 		.nbDestinations = 1
 	};
 	
 	Chapter chapter3 = {
 		.description = "Chapitre 3",
-		.goldGain = 0,
-		.healthGain = 0,
+		.gold_gain = -5,
+		.health_gain = -50,
 		.destinations = {},
 		.nbDestinations = 0
 	};
 	
 	Chapter chapters[4] = {start, chapter1, chapter2, chapter3};
 	
-	printf("Quel chemin ?\n");
-	printf("(1) Gauche (2) Droite\n");
-	do {
-		scanf("%1d", &entry);
-	} while (entry != 1 && entry != 2);
-	location = entry;
-	switch (location) {
-		case 1:
-			printf("Vous prenez la porte de gauche.\n");
-			break;
-		case 2:
-			printf("Vous prenez la porte de droite.\n");
-			break;
-	}
+	Ressources ressources = {
+		.health = 100,
+		.health_max = 100,
+		.gold = 10,
+		.gold_min = 0
+	};
 	
-	deplacement(chapters, 0, 0);
-	deplacement(chapters, 0, 1);
+	// (TEST) Scénario déterminé
+	deplacement(&ressources, chapters, &location, location, 0);
+	deplacement(&ressources, chapters, &location, location, 1);
+	deplacement(&ressources, chapters, &location, location, 3);
 }
 
-void deplacement(Chapter* chapters, int from, int to) {
+// 0 : Echec du déplacement
+// 1 : Réussite du déplacement
+// 2 : Réussite du déplacement mais mort du personnage
+int deplacement(Ressources* ressources, Chapter* chapters, int* location, int from, int to) {
 	int nbDestinations = chapters[from].nbDestinations;
 	for (int i = 0; i<nbDestinations; i++) {
+			printf("chapters[from].destinations[i] == %d : %d\n", chapters[from].destinations[i], to);
 		if (chapters[from].destinations[i] == to) {
+			*location = to;
 			printf("%s\n", chapters[to].description);
-			return;
+			// Modification de la vie
+			printf("Vie : %d => ", (*ressources).health);
+			(*ressources).health += chapters[to].health_gain;
+			if ((*ressources).health > (*ressources).health_max)
+				(*ressources).health = (*ressources).health_max;
+			printf("%d\n", (*ressources).health);
+			// Modification de l'or
+			printf("Or : %d => ", (*ressources).gold);
+			(*ressources).gold += chapters[to].gold_gain;
+			if ((*ressources).gold < (*ressources).gold_min)
+				(*ressources).gold = (*ressources).gold_min;
+			printf("%d\n", (*ressources).gold);
+			if ((*ressources).health <= 0) {
+				printf("Vous etes mort !");
+				return 2;
+			} else {
+				return 1;
+			}
 		}
 	}
 	printf("Choix impossible.\n");
+	return 0;
 }
