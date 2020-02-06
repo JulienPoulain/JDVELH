@@ -80,7 +80,6 @@ int main() {
 int deplacement(Ressources* ressources, Chapter* chapters, int* location, int from, int to) {
 	int nbDestinations = chapters[from].nbDestinations;
 	for (int i = 0; i<nbDestinations; i++) {
-			printf("chapters[from].destinations[i] == %d : %d\n", chapters[from].destinations[i], to);
 		if (chapters[from].destinations[i] == to) {
 			*location = to;
 			printf("%s\n", chapters[to].description);
