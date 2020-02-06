@@ -2,40 +2,56 @@
 #include <string.h>
 #include <stdbool.h>
 
+#define SIZE_ARRAY_DESTINATIONS 5
+
 typedef struct Chapter Chapter;
 struct Chapter {
 	char description[128];
 	int goldGain;
 	int healthGain;
-	char* nextChapters[2];
+	int destinations[SIZE_ARRAY_DESTINATIONS];
+	int nbDestinations;
 };
 
-void deplacement(Chapter);
+void deplacement(Chapter*, int, int);
 
 int main() {
 	int entry = 0;
 	int location = 0;
 	
-	Chapter chapter1 = {
-		.description = "chapter1",
+	Chapter start = {
+		.description = "Départ",
 		.goldGain = 0,
 		.healthGain = 0,
-		.nextChapters = {"chapter2", "chapter3"}
+		.destinations = {1, 2},
+		.nbDestinations = 2
+	};
+	
+	Chapter chapter1 = {
+		.description = "Chapitre 1",
+		.goldGain = 0,
+		.healthGain = 0,
+		.destinations = {2, 3},
+		.nbDestinations = 2
 	};
 	
 	Chapter chapter2 = {
-		.description = "chapter2",
+		.description = "Chapitre 2",
 		.goldGain = 0,
 		.healthGain = 0,
-		.nextChapters = {"chapter3"}
+		.destinations = {3},
+		.nbDestinations = 1
 	};
 	
 	Chapter chapter3 = {
-		.description = "chapter3",
+		.description = "Chapitre 3",
 		.goldGain = 0,
 		.healthGain = 0,
-		.nextChapters = {}
+		.destinations = {},
+		.nbDestinations = 0
 	};
+	
+	Chapter chapters[4] = {start, chapter1, chapter2, chapter3};
 	
 	printf("Quel chemin ?\n");
 	printf("(1) Gauche (2) Droite\n");
@@ -52,11 +68,17 @@ int main() {
 			break;
 	}
 	
-	deplacement(chapter1);
-	deplacement(chapter2);
-	deplacement(chapter3);
+	deplacement(chapters, 0, 0);
+	deplacement(chapters, 0, 1);
 }
 
-void deplacement(Chapter chapter) {
-	printf("%s\n", chapter.description);
+void deplacement(Chapter* chapters, int from, int to) {
+	int nbDestinations = chapters[from].nbDestinations;
+	for (int i = 0; i<nbDestinations; i++) {
+		if (chapters[from].destinations[i] == to) {
+			printf("%s\n", chapters[to].description);
+			return;
+		}
+	}
+	printf("Choix impossible.\n");
 }
